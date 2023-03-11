@@ -1,0 +1,277 @@
+//roi 为西南五省合并后的行政边界，要经过QGIS的简化处理，降低边界的复杂度
+
+
+
+//---------start--only focus on the forest area
+var dataset = ee.Image(MODIS/006/MCD12Q1/2010_01_01');
+var igbpLandCover = dataset.select('LC_Type1').clip(roi);
+
+//print(igbpLandCover);
+var mask11= igbpLandCover.lt(10);
+var antimask=igbpLandCover.mask(mask11);
+
+
+var igbpLandCoverVis = {
+  min: 1.0,
+  max: 8.0,
+  palette: [
+    '05450a', '086a10', '54a708', '78d203', '009900', 'c6b044', 'dcd159',
+  ],
+};
+//Map.addLayer(antimask,igbpLandCoverVis,"antimask");
+
+
+//GPP 8-DAY!
+var datasetGpp = ee.ImageCollection('MODIS/006/MOD17A2H')//.filter(ee.Filter.date('2018-01-01', '2018-05-01'))
+.map(function(img){
+  return img.clip(roi);
+});
+print(datasetGpp)
+//var gpp = dataset.select('Gpp');
+var gppVis = {
+  min: 0.0,
+  max: 600.0,
+  palette: ['bbe029', '0a9501', '074b03'],
+};
+
+
+//NPP Yearly
+var dataset = ee.ImageCollection('MODIS/006/MOD17A3HGF').map(function(img){
+  return img.clip(roi);
+});
+
+var visualization = {
+  bands: ['Npp'],
+  min: 0.0,
+  max: 19000.0,
+  palette: ['bbe029', '0a9501', '074b03']
+};
+//Map.addLayer(dataset, visualization, 'dataset');
+//print(dataset)
+
+
+
+//-------------------method1:only use gpp to calculate CUE
+var CUEcalculate = function(image) {
+var namedVarsExp = '0.8*Psn/Gpp';
+var CUE = ee.Image().expression({
+  expression: namedVarsExp,
+  map: {
+    Gpp:image.select('Gpp'),
+    Psn: image.select('PsnNet')
+  }
+}).rename('Cue');
+
+  return image.addBands(CUE);
+};                 
+
+var CUEcollection= datasetGpp.map(CUEcalculate);
+var CUEcollection= CUEcollection.map(function(img){
+  return img.mask(mask11);
+});
+var CUEcollection= CUEcollection.select('Cue');
+print(CUEcollection);
+
+
+
+var CUEcollection = CUEcollection
+                  .map(function(image){
+                    return image.set(image.toDictionary(image.propertyNames()));
+                  });
+                  
+
+var years = ee.List.sequence(2000, 2020);
+var collectYear = ee.ImageCollection(years
+  .map(function(y) {
+    var start = ee.Date.fromYMD(y, 1, 1);
+    var end = start.advance(12, 'month');
+    return CUEcollection.filterDate(start, end).reduce(ee.Reducer.mean()).float().set('system:time_start',start).set('year',y);
+}));
+print(collectYear)
+
+var collectYearInt= ee.ImageCollection(collectYear).map(function(img){
+  return img.set('system:time_start',(ee.Date(img.get('system:time_start')).millis()));
+});
+//.multiply(100).toInt()
+Map.addLayer(collectYearInt)
+
+//Map.addLayer(collectYearInt)
+//设置显示样式：color代表边界颜色；fillcolor代表填充颜色
+var styling={color:'red',fillColor:'00000000'}
+//加载矢量边界
+//Map.addLayer(roi.style(styling),{},"Roi_Boundary")
+Map.centerObject(roi, 6);
+
+var afterFilter = ee.Filter.lessThan({
+  leftField:'system:time_start',
+  rightField:'system:time_start'
+});
+var joined = ee.ImageCollection(ee.Join.saveAll('after').apply({
+  primary:collectYearInt,
+  secondary:collectYearInt,
+  condition:afterFilter
+}));
+
+
+
+//from https://developers.google.com/earth-engine/tutorials/community/nonparametric-trends
+//MK趋势检验
+var sign = function(i,j){
+  return ee.Image(j).neq(i)
+  .multiply(ee.Image(j).subtract(i).clamp(-1,1)).int();
+};
+
+var kendall = ee.ImageCollection(joined.map(function(current){
+  var afterCollection = ee.ImageCollection.fromImages(current.get('after'));
+  return afterCollection.map(function(image){
+    return ee.Image(sign(current,image)).unmask(0);
+  });
+}).flatten()).reduce('sum',2);
+
+// 可视化参数
+var palette = ['red', 'white',  'green'];
+
+
+//sen斜率
+var slope = function(i,j){
+  return ee.Image(j).subtract(i)
+  .divide(ee.Image(j).date().difference(ee.Image(i).date(),'year'))
+  .rename('slope')
+  .float();
+};
+
+var slopes = ee.ImageCollection(joined.map(function(current){
+  var afterCollection = ee.ImageCollection.fromImages(current.get('after'));
+  return afterCollection.map(function(image){
+    return ee.Image(slope(current,image));
+  });
+}).flatten());
+
+var sen_slope = slopes.reduce(ee.Reducer.median(),2);
+
+Map.addLayer(sen_slope.clip(roi),{palette:palette},'sen_slope');
+
+
+Export.image.toDrive({
+  image: sen_slope,
+  description: 'sen_slope_float',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+
+
+
+//MK统计量的方差
+var groups = collectYearInt.map(function(i){
+  var matches = collectYearInt.map(function(j){
+    return i.eq(j)
+  }).sum();
+  return i.multiply(matches.gt(1));
+});
+
+var group = function(array){
+  var length = array.arrayLength(0);
+  
+  // var indices = array.arrayLength(0);
+  
+  var indices = ee.Image([1])
+  .arrayRepeat(0,length)
+  .arrayAccum(0,ee.Reducer.sum())
+  .toArray(1);
+  
+  var sorted = array.arraySort();
+  var left = sorted.arraySlice(0,1);
+  var right = sorted.arraySlice(0,0,-1);
+  
+  var mask = left.neq(right)
+  .arrayCat(ee.Image(ee.Array([[1]])),0);
+  
+  var runIndices = indices.arrayMask(mask);
+  
+  var groupsizes = runIndices.arraySlice(0,1)
+  .subtract( runIndices.arraySlice(0,0,-1));
+  return groupsizes ;
+
+};
+
+var factors = function(image){
+  return image.expression('b()*(b()-1)*(b()*2+5)');
+};
+
+var groupsizes = group(groups.toArray());
+var groupFactors = factors(groupsizes);
+var groupFactorSum = groupFactors.arrayReduce('sum', [0])
+. arrayGet([0, 0]);
+
+var count = joined.count();
+
+var kendall_Variance = factors(count).subtract(groupFactorSum)
+.divide(18)
+.float();
+
+//显著性检验
+//计算z统计量。
+var zero = kendall.multiply(kendall.eq(0));
+var pos = kendall.multiply(kendall.gt(0)).subtract(1);
+var neg = kendall.multiply(kendall.lt(0)).add(1);
+
+var z = zero
+  .add(pos.divide(kendall_Variance.sqrt()))
+  .add(neg.divide(kendall_Variance.sqrt()));
+//Map.addLayer(z.clip(roi),{min:-2,max:2},'z');
+// https://en.wikipedia.org/wiki/Error_function#Cumulative_distribution function
+function eeCdf(z){
+  return ee.Image(0.5)
+  .multiply(ee.Image(1).add(ee.Image(z).divide( ee.Image(2).sqrt()).erf()));
+}
+
+function invCdf(p) {
+  return ee.Image(2).sqrt()
+  .multip1y( ee.Image(p).multiply(2).subtract(1).erfInv());
+}
+
+//计算P值
+var p = ee.Image(1).subtract(eeCdf(z.abs()));
+
+Export.image.toDrive({
+  image: p,
+  description: 'p值_float',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+
+Map.addLayer(p,{min: 0,max: 1},'p');
+
+//可以拒绝原假设(没有趋势)的像素。
+//具体来说，如果真实趋势为零，则小于5%
+//随机获得观察结果的机会(存在趋势)。
+Map.addLayer(p.lte(0.05).clip(roi),{min: 0,max: 1},'significant_trends');
+
+
+
+
+// Perform temporal reduction to get yearly mean NDVI images
+var yearrange  = [2000,2020];   // limit calculations to specific range of years
+var monthrange = [1,12];        // limit calculations to specific range of months
+
+var years   = ee.List.sequence(yearrange[0],yearrange[1]);
+var yearmeans = ee.ImageCollection.fromImages(
+    years.map(function (yr){
+      return CUEcollection.filterDate(ee.Date.fromYMD(yr,1,1),ee.Date.fromYMD(yr,12,31))
+               .mean()
+                .set('year',yr)
+               .set('monthrange',monthrange[0]+'-'+monthrange[1])
+               .set('system:time_start', ee.Date.fromYMD(yr,1,1))
+               // add image band with the year to use in the regression
+               .addBands(ee.Image.constant(yr).rename('yr').float())
+  })
+)
+
+var TESTlinearfit = yearmeans.select("yr","Cue").reduce(ee.Reducer.linearFit());
+var cor = yearmeans.select("yr","Cue").reduce(ee.Reducer.pearsonsCorrelation());
+Map.addLayer(cor)
+Map.addLayer(TESTlinearfit)
+var TESTsenfit = yearmeans.select("yr","Cue").reduce(ee.Reducer.sensSlope());
+Map.addLayer(TESTsenfit)
