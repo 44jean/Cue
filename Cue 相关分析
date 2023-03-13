@@ -1,0 +1,254 @@
+var roi = ee.FeatureCollection("users/Jean44/merged5pronSimplied");
+
+//气候数据 
+var ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/MONTHLY").filterDate('2000-01-01','2020-12-30').map(function(img){
+  return img.clip(roi);
+})
+print(ERA5)
+//---------start--only focus on the forest area
+var dataset = ee.Image('MODIS/006/MCD12Q1/2010_01_01');
+var igbpLandCover = dataset.select('LC_Type1').clip(roi);
+
+print(igbpLandCover);
+var mask11= igbpLandCover.lt(10);
+
+var antimask=igbpLandCover.mask(mask11);
+
+
+var igbpLandCoverVis = {
+  min: 1.0,
+  max: 8.0,
+  palette: [
+    '05450a', '086a10', '54a708', '78d203', '009900', 'c6b044', 'dcd159',
+  ],
+};
+//Map.addLayer(antimask,igbpLandCoverVis,"antimask");
+
+
+//GPP 8-DAY!
+var datasetGpp = ee.ImageCollection('MODIS/006/MOD17A2H')//.filter(ee.Filter.date('2018-01-01', '2018-05-01'))
+.map(function(img){
+  return img.clip(roi);
+});
+
+//var gpp = dataset.select('Gpp');
+var gppVis = {
+  min: 0.0,
+  max: 600.0,
+  palette: ['bbe029', '0a9501', '074b03'],
+};
+
+
+//NPP Yearly
+var dataset = ee.ImageCollection('MODIS/006/MOD17A3HGF').map(function(img){
+  return img.clip(roi);
+});
+
+var visualization = {
+  bands: ['Npp'],
+  min: 0.0,
+  max: 19000.0,
+  palette: ['bbe029', '0a9501', '074b03']
+};
+//Map.addLayer(dataset, visualization, 'dataset');
+//print(dataset)
+
+
+
+//-------------------method1:only use gpp to calculate CUE
+var CUEcalculate = function(image) {
+var namedVarsExp = '0.8*Psn/Gpp';
+var CUE = ee.Image().expression({
+  expression: namedVarsExp,
+  map: {
+    Gpp:image.select('Gpp'),
+    Psn: image.select('PsnNet')
+  }
+}).rename('Cue');
+  return image.addBands(CUE);
+};                 
+
+var CUEcollection= datasetGpp.map(CUEcalculate);
+var CUEcollection= CUEcollection.map(function(img){
+  return img.mask(mask11);
+});
+var CUEcollection= CUEcollection.select('Cue');
+
+
+var palettes = require('users/gena/packages:palettes');
+var palette = palettes.colorbrewer.RdYlGn[8];
+
+
+/*var CUEcollection = CUEcollection
+                  .map(function(image){
+                    return image.set(image.toDictionary(image.propertyNames()));
+                  });*/
+                  
+var years = ee.List.sequence(2000, 2020);
+var months = ee.List.sequence(1, 12);
+
+var monthlymeanCUE =  ee.ImageCollection.fromImages( 
+ years.map(function (y) {  
+   return months.map(function(m) {   
+   return CUEcollection.filter(ee.Filter.calendarRange(y,y, 'year'))
+              .filter(ee.Filter.calendarRange(m, m, 'month'))
+              .mean()
+              .set('year', y)
+              .set('month', ee.Number(m).int())
+              .set('system:time_start', ee.Date.fromYMD(y, m, 1))
+      });  }).flatten());
+
+var monthlymeanCUE=  monthlymeanCUE.filter(ee.Filter.date('2000-02-01', '2020-12-30'))
+
+
+var monthlymeanCUE =  monthlymeanCUE.map(function(image){
+  return image.set('system:time_start', ee.Date(image.get('system:time_start')).millis())
+});
+//set('timestamp', ee.Date(feature.get('timestamp')).millis()
+print(monthlymeanCUE)
+
+
+Map.addLayer(monthlymeanCUE);
+
+var MONTHtemperature_2m = ERA5.select('temperature_2m')
+
+var MONTHtotal_precipitation = ERA5.select('total_precipitation')
+
+var MONTHsurface_net_solar_radiation=ERA5.select('surface_net_solar_radiation')
+
+var MONTHtotal_evaporation_sum=ERA5.select('total_evaporation')
+
+///Combine two image collections
+var mod1 = monthlymeanCUE
+var mod2 = MONTHtemperature_2m
+var mod3 = MONTHtotal_precipitation
+var mod4 = MONTHsurface_net_solar_radiation
+var mod5 = MONTHtotal_evaporation_sum
+var filter = ee.Filter.equals({
+  leftField: 'system:time_start',
+  rightField: 'system:time_start'
+});
+//1-----------
+// Create the join.
+var simpleJoin = ee.Join.inner();
+
+// Inner join
+var innerJoin = ee.ImageCollection(simpleJoin.apply(mod1, mod2, filter))
+
+var joined = innerJoin.map(function(feature) {
+  return ee.Image.cat(feature.get('primary'), feature.get('secondary'));
+})
+
+var pearsonsCorCUEandTemper=joined.select('Cue','temperature_2m').reduce(ee.Reducer.pearsonsCorrelation())
+Map.addLayer(pearsonsCorCUEandTemper)
+var spearmansCorCUEandTemper=joined.select('Cue','temperature_2m').reduce(ee.Reducer.spearmansCorrelation())
+Map.addLayer(spearmansCorCUEandTemper)
+
+Export.image.toDrive({
+  image: pearsonsCorCUEandTemper,
+  description: 'pearsonsCorCUEandTemper',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+
+Export.image.toDrive({
+  image: spearmansCorCUEandTemper,
+  description: 'spearmansCorCUEandTemper',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+
+//2-----------
+// Create the join.
+var simpleJoin = ee.Join.inner();
+
+// Inner join
+var innerJoin = ee.ImageCollection(simpleJoin.apply(mod1, mod3, filter))
+
+var joined = innerJoin.map(function(feature) {
+  return ee.Image.cat(feature.get('primary'), feature.get('secondary'));
+})
+
+var pearsonsCorCUEandTotalpreci=joined.select('Cue','total_precipitation').reduce(ee.Reducer.pearsonsCorrelation())
+Map.addLayer(pearsonsCorCUEandTotalpreci)
+var spearmansCorCUEandTotalpreci=joined.select('Cue','total_precipitation').reduce(ee.Reducer.spearmansCorrelation())
+Map.addLayer(spearmansCorCUEandTotalpreci)
+
+
+Export.image.toDrive({
+  image: pearsonsCorCUEandTotalpreci,
+  description: 'pearsonsCorCUEandTotalpreci',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+Export.image.toDrive({
+  image: spearmansCorCUEandTotalpreci,
+  description: 'spearmansCorCUEandTotalpreci',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+
+//3-----------
+// Create the join.
+var simpleJoin = ee.Join.inner();
+
+// Inner join
+var innerJoin = ee.ImageCollection(simpleJoin.apply(mod1, mod4, filter))
+
+var joined = innerJoin.map(function(feature) {
+  return ee.Image.cat(feature.get('primary'), feature.get('secondary'));
+})
+
+var pearsonsCorCUEandsurface_net_solar_radiation=joined.select('Cue','surface_net_solar_radiation').reduce(ee.Reducer.pearsonsCorrelation())
+Map.addLayer(pearsonsCorCUEandsurface_net_solar_radiation)
+var spearmansCorCUEandsurface_net_solar_radiation=joined.select('Cue','surface_net_solar_radiation').reduce(ee.Reducer.spearmansCorrelation())
+Map.addLayer(spearmansCorCUEandsurface_net_solar_radiation)
+
+Export.image.toDrive({
+  image: pearsonsCorCUEandsurface_net_solar_radiation,
+  description: 'pearsonsCorCUEandsurface_net_solar_radiation',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+Export.image.toDrive({
+  image: spearmansCorCUEandsurface_net_solar_radiation,
+  description: 'spearmansCorCUEandsurface_net_solar_radiation',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+//4---------
+// Create the join.
+var simpleJoin = ee.Join.inner();
+
+// Inner join
+var innerJoin = ee.ImageCollection(simpleJoin.apply(mod1, mod5, filter))
+
+var joined = innerJoin.map(function(feature) {
+  return ee.Image.cat(feature.get('primary'), feature.get('secondary'));
+})
+
+var pearsonsCorCUEandtotal_evaporation=joined.select('Cue','total_evaporation').reduce(ee.Reducer.pearsonsCorrelation())
+Map.addLayer(pearsonsCorCUEandtotal_evaporation)
+var spearmansCorCUEandtotal_evaporation=joined.select('Cue','total_evaporation').reduce(ee.Reducer.spearmansCorrelation())
+Map.addLayer(spearmansCorCUEandtotal_evaporation)
+
+Export.image.toDrive({
+  image: pearsonsCorCUEandtotal_evaporation,
+  description: 'pearsonsCorCUEandtotal_evaporation',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
+Export.image.toDrive({
+  image: spearmansCorCUEandtotal_evaporation,
+  description: 'spearmansCorCUEandtotal_evaporation',
+ // crs: projection.crs,
+ // crsTransform: projection.transform,
+  region: roi
+});
