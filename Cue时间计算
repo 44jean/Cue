@@ -1,0 +1,729 @@
+var roi = ee.FeatureCollection("users/Jean44/5pronvinces"),
+    XNclimateZones = ee.FeatureCollection("users/Jean44/5provinceclimateZones"),
+    geometry = 
+    /* color: #d63000 */
+    /* shown: false */
+    ee.Geometry.MultiPolygon(
+        [[[[83.95623604704815, 32.728463279485624],
+           [83.71453682829815, 32.91311474366242],
+           [83.56072823454815, 33.13418903193055],
+           [82.85760323454815, 33.09738183551734],
+           [81.85784737517315, 32.561949248735594],
+           [81.45135323454815, 32.38584857172027],
+           [80.82513253142315, 32.54342856303793],
+           [80.45159737517315, 32.3580117326667],
+           [81.07781807829815, 31.83682167772868],
+           [81.82488839079815, 31.481469326156883],
+           [82.83563057829815, 31.143569941374558],
+           [83.97820870329815, 30.70060591188032],
+           [84.89007393767315, 30.217632375948284],
+           [85.74700753142315, 30.179651026820576],
+           [86.29632393767315, 30.454683264917872],
+           [86.23040596892315, 30.955325399454484],
+           [85.51629464079815, 31.453357382983942],
+           [84.85711495329815, 31.66866629396013],
+           [85.20867745329815, 31.88347726143794],
+           [85.41741768767315, 32.116400497309115],
+           [86.16448800017315, 32.39512561259824],
+           [86.48309151579815, 32.66374466579238],
+           [86.64788643767315, 32.89466687566156],
+           [86.46111885954815, 33.06055922008095],
+           [85.87884346892315, 33.143388420788185],
+           [85.46136300017315, 33.23532924658555],
+           [85.15374581267315, 33.18017633115364],
+           [85.36248604704815, 32.73770496432039],
+           [85.40643135954815, 32.54342856303793],
+           [85.07684151579815, 32.40440170049729],
+           [84.78021065642315, 32.40440170049729],
+           [84.54949776579815, 32.506375729327935],
+           [84.30779854704815, 32.73770496432039]]],
+         [[[101.89325656037312, 21.122826572086726],
+           [101.84931124787312, 21.45040351222742],
+           [101.82733859162312, 21.87923259921485],
+           [101.72846163849812, 22.16440599371657],
+           [101.72846163849812, 22.306776669697705],
+           [102.01410616974812, 22.306776669697705],
+           [102.28876437287312, 22.388066290109528],
+           [102.45355929474812, 22.580938597538072],
+           [102.67328585724812, 22.499761964049984],
+           [102.98090304474812, 22.408381281714618],
+           [103.14569796662312, 22.408381281714618],
+           [103.32147921662312, 22.56064891528714],
+           [103.50824679474812, 22.48961153054012],
+           [103.88178195099812, 22.33726583283042],
+           [104.27728976349812, 22.408381281714618],
+           [104.66181124787312, 22.611367518525654],
+           [105.33197726349812, 22.95575662775302],
+           [106.03510226349812, 23.16803129272702],
+           [106.39765109162312, 23.521074516396748],
+           [106.30976046662312, 23.85307913355957],
+           [106.13397921662312, 24.19425698508774],
+           [105.74945773224812, 24.224317346903014],
+           [105.48578585724812, 24.2844167811987],
+           [105.25507296662312, 24.354496852225633],
+           [105.00238741974812, 24.524529696796996],
+           [104.94745577912312, 24.694332634650856],
+           [105.23310031037312, 24.843966889761305],
+           [105.36493624787312, 24.744230749563915],
+           [105.70551241974812, 24.674367789775374],
+           [105.85932101349812, 24.664384168526677],
+           [106.05707491974812, 24.594476464318426],
+           [106.34271945099812, 24.754207971104545],
+           [106.57343234162312, 24.903770036652002],
+           [106.92499484162312, 25.063103347647427],
+           [107.29852999787312, 25.073054818473516],
+           [107.70502413849812, 25.073054818473516],
+           [108.16644991974812, 25.122800038928148],
+           [108.62787570099812, 25.212290400617942],
+           [109.17719210724812, 25.400998334265662],
+           [109.4355155875312, 25.804213734056134],
+           [109.6003105094062, 26.21889833727881],
+           [109.5563651969062, 26.494537518507823],
+           [109.6222831656562, 26.808746016258834],
+           [109.5453788687812, 27.30771822154488],
+           [109.5343925406562, 27.74613388493281],
+           [109.5673515250312, 28.85850155939396],
+           [109.4025566031562, 29.30016763251109],
+           [108.88492287432831, 29.854337279036194],
+           [108.77505959307831, 30.20626307440497],
+           [108.91788185870331, 30.32961544476119],
+           [109.29141701495331, 30.39597170296995],
+           [109.71988381182831, 30.519085190816927],
+           [110.04947365557831, 30.711721968382857],
+           [110.20328224932831, 30.891018776978893],
+           [110.25821388995331, 31.304944188909474],
+           [110.06045998370331, 31.52059457041605],
+           [109.71988381182831, 31.810467627712818],
+           [109.24747170245331, 31.98768383078309],
+           [108.22574318682831, 32.40604159919028],
+           [107.59952248370331, 32.60061550637339],
+           [107.10513771807831, 32.87784643663224],
+           [106.10538185870331, 32.97006485321146],
+           [105.41324318682831, 33.025349746107814],
+           [105.22647560870331, 32.9516288597864],
+           [105.13858498370331, 32.88707260239676],
+           [104.79800881182831, 32.86861931046486],
+           [104.67715920245331, 32.88707260239676],
+           [104.54532326495331, 33.17260662623371],
+           [104.49039162432831, 33.53050941752111],
+           [103.95206154620331, 33.96897900350729],
+           [103.55655373370331, 33.94164040031135],
+           [103.38077248370331, 34.01452381697569],
+           [103.18851174151581, 34.296356002594514],
+           [102.83145607745331, 34.38253545042473],
+           [101.82620705401581, 34.10099167231869],
+           [102.71846172948818, 33.97581228169176],
+           [102.93544170995693, 33.77285841565716],
+           [103.01234600683193, 33.500740427946404],
+           [103.09199688573818, 33.35403617357619],
+           [103.15791485448818, 33.0759971225657],
+           [103.05354473730068, 32.97839370294362],
+           [102.36964581151943, 32.84927317727958],
+           [102.05104229589443, 32.87926436850215],
+           [101.46327374120693, 32.91616267719798],
+           [100.77937481542568, 32.904633606997834],
+           [100.24104473730068, 32.53491218799614],
+           [100.02131817480068, 32.07061243343924],
+           [99.52151186879894, 31.87368747999743],
+           [99.18093569692394, 32.47811857198622],
+           [98.15920718129894, 32.67253653834965],
+           [96.81887515004894, 32.66328810229096],
+           [96.10476382192394, 32.51518305161088],
+           [94.91824038442394, 32.50591836362099],
+           [93.63283999379894, 32.29256733335854],
+           [92.94070132192394, 31.471637064502602],
+           [92.67702944692394, 30.77568282651934],
+           [92.35842593129894, 30.117430984801505],
+           [92.39413149770519, 29.241690193099924],
+           [92.35452275955362, 28.612630663108295],
+           [92.46987920486612, 28.06936036984533],
+           [92.14510041796365, 28.24361556142924],
+           [91.82100373827615, 28.35485828233722],
+           [91.17830354296365, 28.44183659619133],
+           [90.70589143358865, 28.437006341024116],
+           [89.7081341682449, 28.45522482316158],
+           [88.8951458869949, 28.60001143905328],
+           [88.0052533088699, 28.783121762927607],
+           [86.7637982307449, 29.02356724416895],
+           [85.4564251838699, 29.215521602719885],
+           [84.5006146369949, 29.07158940610752],
+           [87.2801556526199, 27.38743222458894],
+           [88.9390911994949, 26.888815902865076],
+           [90.9605755744949, 26.190989909363676],
+           [92.2349896369949, 26.210704915461502],
+           [94.2235150276199, 26.99654850096323],
+           [94.9046673713699, 27.54340098679315],
+           [95.6956829963699, 27.83524578817061],
+           [96.8602337776199, 27.679692300018118],
+           [97.3875775276199, 27.815813762731217],
+           [97.6073040901199, 27.912939080858667],
+           [97.9149212776199, 27.62130250266791],
+           [98.2005658088699, 27.250778838215624],
+           [98.1566204963699, 26.64358716001557],
+           [98.0467572151199, 26.052891522445638],
+           [97.6512494026199, 25.399672172837445],
+           [97.1458783088699, 24.583151458169908],
+           [97.2337689338699, 23.721046186426953],
+           [97.7171673713699, 23.398789617344253],
+           [98.4202923713699, 23.35845209520107],
+           [98.7498822151199, 22.913933232831212],
+           [98.8597454963699, 22.366390705572808],
+           [99.34861518372577, 21.877870259934305],
+           [99.78806830872577, 21.571690816245212],
+           [100.05174018372577, 21.449037116629782],
+           [100.88670112122577, 21.264863132484983],
+           [101.41404487122577, 21.059954882859092],
+           [101.65574408997577, 21.03944847954561]]]]),
+    XNunmerged5provinces = ee.FeatureCollection("users/Jean44/unmer5sSimplified"),
+    merged5pronSimplied = ee.FeatureCollection("users/Jean44/merged5pronSimplied");
+    //---------start--only focus on the forest area
+var dataset = ee.Image('MODIS/006/MCD12Q1/2010_01_01');
+var igbpLandCover = dataset.select('LC_Type1').clip(roi);
+print(igbpLandCover);
+
+
+/*Export.image.toDrive({
+  image: igbpLandCover,
+  description: 'igbpLandCover',
+  scale:500,
+  crs:'EPSG:4326',
+  maxPixels:1e13
+})*/
+var mask11= igbpLandCover.lt(10);
+
+var antimask=igbpLandCover.mask(mask11);
+print(antimask)
+
+var igbpLandCoverVis = {
+  min: 1.0,
+  max: 8.0,
+  palette: ['05450a', '086a10', '54a708', '78d203', '009900', 'c6b044', 'dcd159',],
+};
+Map.addLayer(antimask,igbpLandCoverVis,"antimask");
+
+
+//------计算CUE值 
+//GPP 8-DAY!
+var datasetGpp = ee.ImageCollection('MODIS/006/MOD17A2H')//.filter(ee.Filter.date('2018-01-01', '2018-05-01'))
+.map(function(img){
+  return img.clip(roi);
+});
+
+
+//NPP Yearly
+var dataset = ee.ImageCollection('MODIS/006/MOD17A3HGF').map(function(img){
+  return img.clip(roi);
+});
+
+
+//-------------------method1:only use gpp to calculate CUE
+var CUEcalculate = function(image) {
+var namedVarsExp = '0.8*Psn/Gpp';
+var CUE = ee.Image().expression({
+  expression: namedVarsExp,
+  map: {
+    Gpp:image.select('Gpp'),
+    Psn: image.select('PsnNet')
+  }
+}).rename('Cue');
+
+  return image.addBands(CUE);
+};                 
+
+var CUEcollection= datasetGpp.map(CUEcalculate);
+var CUEcollection= CUEcollection.map(function(img){
+  return img.mask(mask11);
+});
+var CUEcollection= CUEcollection.select('Cue');
+print(CUEcollection);
+
+var palettes = require('users/gena/packages:palettes');
+var palette = palettes.colorbrewer.RdYlGn[8];
+
+// time settings
+var yearrange  = [2000,2020];   // limit calculations to specific range of years
+var monthrange = [1,12];      
+
+var CUE = CUEcollection.map(function(x){
+  return x.set('system:time_start', x.get('system:time_start'))
+  });
+//this is fromhttps://kraaijenbrink.github.io/earthengine-workshop/regression.html#calculate-temporal-trend
+var years   = ee.List.sequence(yearrange[0],yearrange[1]);
+var yearmeans = ee.ImageCollection.fromImages(
+    years.map(function (yr){
+      return CUE.filterDate(ee.Date.fromYMD(yr,1,1),ee.Date.fromYMD(yr,12,31))
+               .mean()
+                 .set('year',yr)
+               .set('monthrange',monthrange[0]+'-'+monthrange[1])
+               .set('system:time_start', ee.Date.fromYMD(yr,1,1))
+               // add image band with the year to use in the regression
+               .addBands(ee.Image.constant(yr).rename('yr').float())
+  })
+)
+
+var years   = ee.List.sequence(yearrange[0],yearrange[1]);
+var yearmeanswithoutyear = ee.ImageCollection.fromImages(
+    years.map(function (yr){
+      return CUE.filterDate(ee.Date.fromYMD(yr,1,1),ee.Date.fromYMD(yr,12,31))
+               .mean()
+                 .set('year',yr)
+               .set('monthrange',monthrange[0]+'-'+monthrange[1])
+               .set('system:time_start', ee.Date.fromYMD(yr,1,1))
+               // add image band with the year to use in the regression
+               //.addBands(ee.Image.constant(yr).rename('yr').float())
+  })
+)
+
+var Imageyearmeans = yearmeanswithoutyear.toBands()
+var Imageyearmeans = Imageyearmeans.addBands(antimask)
+var grandmean = yearmeans.select('Cue').mean()
+print(Imageyearmeans)
+/*
+var CUEcollection = CUEcollection
+                  .map(function(image){
+                    return image.set(image.toDictionary(image.propertyNames()));
+                  });
+                  
+
+var years = ee.List.sequence(2000, 2020);
+var collectYear = ee.ImageCollection(years
+  .map(function(y) {
+    var start = ee.Date.fromYMD(y, 1, 1);
+    var end = start.advance(12, 'month');
+    return CUEcollection.filterDate(start, end).reduce(ee.Reducer.mean()).float().set('system:time_start',y).set('year',y);
+}));
+print(collectYear)
+*/
+
+var visualization = {
+  bands: ['Cue'],
+  min: 0.0,
+  max: 1,
+//  palette: palette.reverse()
+};
+Map.addLayer(yearmeans, visualization, 'anuualCUEcollection');
+Map.addLayer(grandmean, visualization, 'anuualCUEcollectionAVERAGE');
+
+
+
+
+/*
+
+
+
+
+var annualCUEbyregions = ui.Chart.image.byRegion({
+  image: grandmean, 
+  regions: XNunmerged5provinces, 
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true),
+  scale: 1000,
+  xProperty:"NAME"
+}).setChartType("ScatterChart").setOptions({ 
+  title: '西南五省林地年均CUE平均值',
+  hAxis: {title: '省份 '},
+  vAxis: {title: 'CUE', minValue: -0.5, maxValue: 1},
+  legend: 'none'
+});
+print(annualCUEbyregions);
+
+*/
+
+var annualCUEall = ui.Chart.image.byRegion({
+  image: grandmean, 
+  regions: merged5pronSimplied , 
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true),
+  scale: 1000,
+}).setChartType("ScatterChart").setOptions({ 
+  title: 'all时间序列',
+  hAxis: {title: '生态区'},
+  vAxis: {title: 'CUE', minValue: -0.5, maxValue: 1},
+  legend: 'none'
+});
+print(annualCUEall);
+/*
+var annualCUEalltimeseries = ui.Chart.image.series({
+  imageCollection: yearmeans, 
+  region: roi , 
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true),
+  scale: 1000,
+ // band:'Cue',
+}).setChartType("ScatterChart").setOptions({ 
+  title: '西南林地生态区年均CUE平均值时间序列',
+  hAxis: {title: '生态区 '},
+  vAxis: {title: 'CUE', minValue: -0.5, maxValue: 1},
+  legend: 'none'
+});
+print(annualCUEalltimeseries);
+*/
+
+/*
+var annualCUE =ui.Chart.image.seriesByRegion({
+  imageCollection: yearmeans,
+  regions:XNclimateZones,
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true) ,
+  scale:1000,
+  band:'Cue',
+  seriesProperty:'NAME3',
+}).setOptions({ 
+  title: '不同气候区年均CUE平均值时间序列',
+  hAxis: {title: '气候区'},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: ' ',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEbyClimateZones)
+*/
+
+
+
+
+/*
+var annualCUEbyclimateregions = ui.Chart.image.byRegion({
+  image: grandmean, 
+  regions: XNclimateZones, 
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true),
+  scale: 1000,
+  xProperty:"NAME3"
+}).setChartType("ScatterChart").setOptions({ 
+  title: '不同生态区年均CUE平均值',
+  hAxis: {title: '生态区 '},
+  vAxis: {title: 'CUE', minValue: -0.5, maxValue: 1},
+  legend: 'none'
+});
+print(annualCUEbyclimateregions);
+*/
+var grandmeanwithVeg=grandmean.addBands(antimask)
+print(grandmeanwithVeg)
+
+var annualCUEbyvegetable= ui.Chart.image.byClass({
+  image: grandmeanwithVeg, 
+  classBand:"LC_Type1",
+  region: roi, 
+  reducer:ee.Reducer.mean().combine(ee.Reducer.minMax(),'', true),
+  scale: 1000,
+ 
+}).setChartType("ScatterChart").setOptions({ 
+  title: '不同树种林地年均CUE平均值  ',
+  hAxis: {title: '树种'},
+  vAxis: {title: 'CUE', minValue: -0.2, maxValue: 1},
+  legend: ''
+});
+print(annualCUEbyvegetable);
+
+
+/*
+var annualCUEallREGIONS =ui.Chart.image.series({
+  imageCollection: yearmeans.select('Cue'),
+  region:XNunmerged5provinces,
+  reducer:ee.Reducer.mean() ,
+  scale:1000,
+  xProperty: 'system:time_start'
+}).setOptions({ 
+  title: '西南五省林地年均CUE平均值时间序列',
+  hAxis: {title: '省份 '},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: ' ',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEallREGIONS)
+*/
+
+
+/*
+var annualCUEbyClimateZones =ui.Chart.image.seriesByRegion({
+  imageCollection: yearmeans,
+  regions:XNclimateZones,
+  reducer:ee.Reducer.mean() ,
+  scale:1000,
+  band:'Cue',
+  seriesProperty:'NAME3',
+}).setOptions({ 
+  title: '不同气候区林地年均CUE平均值时间序列',
+  hAxis: {title: '气候区'},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: ' ',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEbyClimateZones)*/
+
+/*
+print(XNunmerged5provinces)
+var annualCUEbyProvinces =ui.Chart.image.seriesByRegion({
+  imageCollection: yearmeans,
+  regions:XNunmerged5provinces,
+  reducer:ee.Reducer.mean(),
+  scale:1000,
+  band:'Cue',
+  seriesProperty:'NAME',
+}).setOptions({ 
+  title: '西南各省林地年均CUE平均值时间序列',
+  hAxis: {title: '省份 '},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: '',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEbyProvinces)
+
+*/
+var annualCUEtimeseriesbySpecies =ui.Chart.image.byClass({
+  image: Imageyearmeans,
+  region:XNunmerged5provinces,
+  reducer:ee.Reducer.mean(),
+  scale:3000,
+  classBand:'LC_Type1',
+}).setOptions({ 
+  title: '西南各树种林地年均CUE时间序列',
+  hAxis: {title: '树种 '},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: '',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEtimeseriesbySpecies)
+
+
+
+var yearmeanswithVeg=yearmeans.map(function(img){
+  return img.addBands(antimask);
+});
+print(yearmeanswithVeg)
+
+var annualCUEbyvegetable  =ui.Chart.image.seriesByRegion({
+  imageCollection: yearmeanswithVeg,
+  regions:merged5pronSimplied ,
+  reducer:ee.Reducer.mean(),
+  scale:5000,
+  band:'Cue',
+  seriesProperty:"LC_Type1",
+}).setOptions({ 
+  title: '西南林地树种年均CUE时间序列',
+  hAxis: {title: '树种 '},
+  vAxis: {title: 'CUE', minValue: 0.2, maxValue: 0.7},
+  legend: '',
+  trendlines: {0: {
+              type: 'linear',
+              showR2: true,
+              visibleInLegend: true
+            }
+          }
+});
+print(annualCUEbyvegetable)
+
+
+
+
+
+
+//月数据分析 
+/*
+var annualCUEbyregions = ui.Chart.image.doySeriesByRegion({
+  imageCollection: CUE, 
+  bandName:'Cue',
+  regions: XNunmerged5provinces, 
+  regionReducer:ee.Reducer.mean(),
+  yearReducer:ee.Reducer.mean(),
+  scale: 2000,
+  //seriesProperty:'NAME3',
+  startDay:1,
+  endDay:365
+}).setOptions({ 
+  title: '西南五省林地年均CUE平均值',
+  hAxis: {title: '省份 '},
+  vAxis: {title: 'CUE', minValue: -0.5, maxValue: 1},
+  legend: 'none'
+});
+print(annualCUEbyregions);
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+//--------------------趋势分布部分----------------
+//记算并且导出面积  
+
+//计算趋势线 
+
+
+//记算并且导出面积
+
+/*
+var fit = yearmeans.select("yr","Cue").reduce(ee.Reducer.linearFit());
+
+print("fit",fit)
+
+
+var cor = yearmeans.select("yr","Cue").reduce(ee.Reducer.pearsonsCorrelation());
+
+
+print('cor',cor)
+//https://kraaijenbrink.github.io/earthengine-workshop/regression.html
+// load philip's color palette and legend tools
+// run cp.allPalettes() to show all color palettes that are available.
+var cp = require('users/philipkraaijenbrink/tools:colorpals') 
+var lg = require('users/philipkraaijenbrink/tools:legends')
+
+Map.addLayer(grandmean,
+             {min:0.0, max:0.7, palette:cp.getPalette("YlGn",9)},
+             'CUE',1)
+Map.addLayer(fit,
+             {min: -0.0009, max: 0.0009, bands:'scale', palette: cp.getPalette("PiYG",9)},
+             'CUE trends', 0);
+Map.addLayer(cor,
+             {min:-1, max:1, bands:'correlation', palette: cp.getPalette("RdBu",9)},
+             'Correlation', 0);
+Map.addLayer(cor.lte(0.05),
+             {min: '0', max: '1', bands: 'p-value', palette: ['lightgray','darkgreen']},
+             'p<=0.05', 0);
+ 
+// create legends
+lg.rampLegend(cp.getPalette("YlGn",9),0,0.7, 'CUE (-)')
+lg.rampLegend(cp.getPalette("PiYG",9), -6e-3,6e-3, 'CUE trend (y-1)')
+lg.rampLegend(cp.getPalette("RdBu",9),-1,1, 'Correlation (-)')
+lg.classLegend(undefined, ['False','True'], ['lightgray','darkgreen'], 'Significance')
+
+*/
+
+
+
+
+
+/*
+var annualCUE1 = collectYear.reduce(ee.Reducer.mean());
+var annualCUE2=collectYear.mean()
+print(annualCUE1)
+print(annualCUE2)
+*/
+/*
+var visualization = {
+  min: 0.0,
+  max: 1,
+  palette: palette.reverse()
+};
+Map.addLayer(yearmeans.select('Cue'), visualization, 'CUEcollection');*/
+
+
+
+
+/*
+
+//按行政区域 
+var annualCUEbyprovince = yearmeans.aggregate_array(XNunmerged5provinces)
+print(annualCUEbyprovince)
+
+var annualCUEbyprovince = yearmeans.getRegion({
+  geometry: XNunmerged5provinces,
+  scale:1000 
+});
+print(annualCUEbyprovince)
+
+
+
+
+//按气候区域 
+var annualCUEbyprovince = yearmeans.reduceRegions({
+  collection: XNclimateZones,
+  reducer: ee.Reducer.mean(),
+  scale:500 
+});
+print(annualCUEbyprovince)
+
+//按植被种类  
+var annualCUEbyprovince = yearmeans.reduceRegions({
+  collection: XNunmerged5provinces,
+  reducer: ee.Reducer.mean(),
+  scale:500 
+});
+print(annualCUEbyprovince)
+
+
+*/
+
+
+
+
+
+
+
+//----------添加许多分析数据  
+/*
+//获取SRTMGL1_003 数据
+var dataset = ee.Image('USGS/SRTMGL1_003')
+                .clip(roi);
+var terrain = ee.Algorithms.Terrain(dataset);
+Map.addLayer(terrain,{},"terrain");
+
+//海拔
+var elevation = terrain.select('elevation').clip(roi);
+Map.addLayer(elevation,{},"elevation")
+ 
+//坡度
+var slope = terrain.select('slope').clip(roi);
+Map.addLayer(slope,{},"slope")
+ 
+//坡向
+var aspect = terrain.select('aspect').clip(roi);
+Map.addLayer(aspect,{},"aspect")
+ 
+//山体阴影
+var hillshade = terrain.select('hillshade').clip(roi);
+Map.addLayer(hillshade,{},"hillshade")
+
+//气候数据 
+var dataset = ee.ImageCollection("ECMWF/ERA5/MONTHLY");
+*/
+
+
+
+
+//获取采样点
+/*
+var JJpoints= ee.FeatureCollection.randomPoints({
+  region:geometry,
+  points:5000,
+  
+}
+  )
+Map.addLayer(JJpoints,{},'Validation Points')
+
+var Jpoints= antimask.sampleRegions({
+  collection: XNclimateZones,
+  scale:500 ,
+  geometries: false 
+});
+
+print(Jpoints)
+Map.addLayer(Jpoints,{},'Validation Points')
+*/
+
